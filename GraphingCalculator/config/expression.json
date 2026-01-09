@@ -1,0 +1,9 @@
+﻿{
+  "Expression": "x * x",
+  "Thickness": 5,
+  "ScaleX": 100,
+  "ScaleY": 100,
+  "Step": 0.01,
+  "AxesOpacity": 0.4,
+  "AxesThickness": 3
+}
