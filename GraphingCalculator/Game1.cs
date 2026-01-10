@@ -33,6 +33,7 @@ public class Game1 : Game
     {
         _points = [];
         _config = Config.Load();
+        _config.Step = Math.Clamp(_config.Step, MinStep, MaxStep);
         _previousState = Mouse.GetState();
         
         _expression = new MathExpression(_config.Expression, new ScientificMathContext());

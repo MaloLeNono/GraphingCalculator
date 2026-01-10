@@ -1,9 +1,9 @@
 ﻿{
   "Expression": "sin x",
   "Thickness": 5,
-  "ScaleX": 1,
   "ScaleY": 1,
-  "Step": 0.1,
+  "Step": 0.01,
+  "ScaleX": 1,
   "AxesOpacity": 0.4,
   "AxesThickness": 3,
   "StepDelta": 0.1
