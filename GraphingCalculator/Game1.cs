@@ -19,6 +19,8 @@ public class Game1 : Game
     private Texture2D _pixel;
     private MouseState _previousState;
     private MouseState _currentState;
+    private const float MinStep = 0.1f;
+    private const float MaxStep = 2f;
 
     public Game1()
     {
@@ -57,16 +59,31 @@ public class Game1 : Game
 
         float xDelta = _currentState.X - _previousState.X;
         float yDelta = _currentState.Y - _previousState.Y;
-        _config.ScaleX = (float)Math.Clamp(_config.ScaleX, 0.0, float.MaxValue);
-        _config.ScaleY = (float)Math.Clamp(_config.ScaleY, 0.0, float.MaxValue);
+        float scrollWheelDelta = _currentState.ScrollWheelValue - _previousState.ScrollWheelValue;
+        _config.Step = Math.Clamp(_config.Step, MinStep, MaxStep);
+        _config.ScaleX = Math.Clamp(_config.ScaleX, 0f, float.MaxValue);
+        _config.ScaleY = Math.Clamp(_config.ScaleY, 0f, float.MaxValue);
         
-        if (_currentState.LeftButton == ButtonState.Pressed)
+        Console.WriteLine(_config.Step);
+        
+        if (GraphicsDevice.Viewport.Bounds.Contains(_currentState.X, _currentState.Y))
         {
-            CalculatePoints();
-            _config.ScaleX += xDelta;
-            _config.ScaleY -= yDelta;
-        }
+            if (_currentState.LeftButton is ButtonState.Pressed) 
+            {
+                CalculatePoints();
+                _config.ScaleX += xDelta;
+                _config.ScaleY -= yDelta;
+            }
 
+            if (scrollWheelDelta != 0)
+            {
+                CalculatePoints();
+                _config.Step += scrollWheelDelta > 0 
+                    ? _config.StepDelta
+                    : _config.StepDelta * -1f;
+            }
+        }
+        
         _previousState = _currentState;
 
         base.Update(gameTime);
@@ -97,8 +114,6 @@ public class Game1 : Game
         float midX = (p1.X + p2.X) / 2f;
         float midY = (p1.Y + p2.Y) / 2f;
         float hypot = Vector2.Distance(p1, p2);
-
-        if (hypot > 9000f) return;
         float xLeg = p1.X - p2.X;
         float yLeg = p1.Y - p2.Y;
         float angle = -MathF.Atan2(yLeg, xLeg);

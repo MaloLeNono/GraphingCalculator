@@ -9,9 +9,10 @@ public class Config
     public int Thickness { get; init; }
     public float ScaleX { get; set; }
     public float ScaleY { get; set; }
-    public float Step { get; init; }
+    public float Step { get; set; }
     public float AxesOpacity { get; init; }
     public float AxesThickness { get; init; }
+    public float StepDelta { get; init; }
 
     public static Config Load()
     {
