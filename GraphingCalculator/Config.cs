@@ -7,8 +7,8 @@ public class Config
 {
     public string Expression { get; init; }
     public int Thickness { get; init; }
-    public float ScaleX { get; init; }
-    public float ScaleY { get; init; }
+    public float ScaleX { get; set; }
+    public float ScaleY { get; set; }
     public float Step { get; init; }
     public float AxesOpacity { get; init; }
     public float AxesThickness { get; init; }

@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics.Contracts;
-using System.IO;
 using MathEvaluation;
 using MathEvaluation.Context;
 using Microsoft.Xna.Framework;
@@ -19,6 +17,8 @@ public class Game1 : Game
     private Config _config;
     private MathExpression _expression;
     private Texture2D _pixel;
+    private MouseState _previousState;
+    private MouseState _currentState;
 
     public Game1()
     {
@@ -31,6 +31,7 @@ public class Game1 : Game
     {
         _points = [];
         _config = Config.Load();
+        _previousState = Mouse.GetState();
         
         _expression = new MathExpression(_config.Expression, new ScientificMathContext());
         
@@ -51,6 +52,22 @@ public class Game1 : Game
         if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed ||
             Keyboard.GetState().IsKeyDown(Keys.Escape))
             Exit();
+
+        _currentState = Mouse.GetState();
+
+        float xDelta = _currentState.X - _previousState.X;
+        float yDelta = _currentState.Y - _previousState.Y;
+        _config.ScaleX = (float)Math.Clamp(_config.ScaleX, 0.0, float.MaxValue);
+        _config.ScaleY = (float)Math.Clamp(_config.ScaleY, 0.0, float.MaxValue);
+        
+        if (_currentState.LeftButton == ButtonState.Pressed)
+        {
+            CalculatePoints();
+            _config.ScaleX += xDelta;
+            _config.ScaleY -= yDelta;
+        }
+
+        _previousState = _currentState;
 
         base.Update(gameTime);
     }
@@ -80,6 +97,8 @@ public class Game1 : Game
         float midX = (p1.X + p2.X) / 2f;
         float midY = (p1.Y + p2.Y) / 2f;
         float hypot = Vector2.Distance(p1, p2);
+
+        if (hypot > 9000f) return;
         float xLeg = p1.X - p2.X;
         float yLeg = p1.Y - p2.Y;
         float angle = -MathF.Atan2(yLeg, xLeg);
@@ -124,6 +143,7 @@ public class Game1 : Game
 
     private void CalculatePoints()
     {
+        _points.Clear();
         for (float x = -Window.ClientBounds.Width; x < Window.ClientBounds.Width; x += _config.Step)
         {
             float exprValue = (float)_expression.Evaluate(new { x });

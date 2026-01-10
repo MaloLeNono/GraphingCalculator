@@ -29,3 +29,4 @@ C:\Users\malog\RiderProjects\GraphingCalculator\GraphingCalculator\bin\Debug\net
 C:\Users\malog\RiderProjects\GraphingCalculator\GraphingCalculator\bin\Debug\net8.0-windows\MathEvaluation.dll
 C:\Users\malog\RiderProjects\GraphingCalculator\GraphingCalculator\bin\Debug\net8.0-windows\MathTrigonometric.dll
 C:\Users\malog\RiderProjects\GraphingCalculator\GraphingCalculator\bin\Debug\net8.0-windows\Newtonsoft.Json.dll
+C:\Users\malog\RiderProjects\GraphingCalculator\GraphingCalculator\obj\Debug\net8.0-windows\GraphingCalculator.sourcelink.json
