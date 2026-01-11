@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("GraphingCalculator")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+79f2c8c7865487f89ccc97159958cfddf012983b")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+73cc69c036306b4470922a65cfbcbf027c5e6222")]
 [assembly: System.Reflection.AssemblyProductAttribute("GraphingCalculator")]
 [assembly: System.Reflection.AssemblyTitleAttribute("GraphingCalculator")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

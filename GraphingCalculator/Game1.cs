@@ -1,10 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Windows.Forms;
 using MathEvaluation;
 using MathEvaluation.Context;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using ButtonState = Microsoft.Xna.Framework.Input.ButtonState;
+using Keys = Microsoft.Xna.Framework.Input.Keys;
 
 namespace GraphingCalculator;
 
@@ -64,9 +67,6 @@ public class Game1 : Game
         _config.Step = Math.Clamp(_config.Step, MinStep, MaxStep);
         _config.ScaleX = Math.Clamp(_config.ScaleX, 0f, float.MaxValue);
         _config.ScaleY = Math.Clamp(_config.ScaleY, 0f, float.MaxValue);
-        
-        Console.WriteLine(_config.Step);
-        
         if (GraphicsDevice.Viewport.Bounds.Contains(_currentState.X, _currentState.Y))
         {
             if (_currentState.LeftButton is ButtonState.Pressed) 
