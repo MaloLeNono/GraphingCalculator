@@ -27,6 +27,9 @@ The arguments for the calculator are:
 `<expression> <x scale> <y scale> <step>`
 
 expression: The function you want to graph.
+
 x scale: The scale at which the x axis will be drawn.
+
 y scale: Same as x scale but with the y axis.
+
 step: The x difference between every point calculated. The higher the step, the more jagged the function will look and vice versa.
