@@ -6,18 +6,18 @@ This is a pretty simple calculator, there are some more complex functions like `
 
 ### 1. Requirements
 
-If you don't feel like building this yourself, you can grab precompiled binaries in the Releases tab.
-You will need to have a copy of SDL3 installed at `C:/SDL`. This program looks for SDL CMake files at `C:/SDL/cmake` and for `SDL3.dll` at `C:/SDL/bin`. I know this isn't great but I basically never used CMake so this will have to do.
+If you're on Windows x64 and don't feel like building it yourself, feel free to grab precompiled binaries in the Releases tab.
+For this to work, you will need to have `vcpkg` installed to manage the packages (SDL3). Make sure you take note of where your `vcpkg.cmake` file is.
 
 ### 2. Building.
 
 1. In the `GraphingCalculator` directory, open your prefered terminal.
 2. Make a new directory called `build` with `mkdir build`.
 3. Go inside of that directory with `cd build`.
-4. Type in `cmake ..` and wait for it to do its thing.
+4. Type in `cmake -DCMAKE_TOOLCHAIN_FILE=path/to/your/vcpkg/scripts/buildsystems/vcpkg.cmake ..` and wait for it to do its thing.
 5. When it's done, type `cmake --build . --config Release` and wait for it to be done.
 6. Finally, type in `cmake --install . --prefix <installdir>`. Replace `<installdir>` with the directory you want the program to be installed in.
-7. Launch the `.exe`!
+7. Follow the usage instructions below.
 
 ## Usage
 
