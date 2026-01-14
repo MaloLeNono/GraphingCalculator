@@ -7,7 +7,7 @@ add_compile_options(/bigobj)
 
 find_package(SDL3 CONFIG REQUIRED)
 
-add_executable(GraphingCalculator src/main.cpp src/tinyexpr.cpp)
+add_executable(GraphingCalculator src/main.cpp)
 
 target_link_libraries(GraphingCalculator PRIVATE SDL3::SDL3)
 

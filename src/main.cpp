@@ -1,16 +1,17 @@
-﻿#include <complex>
+﻿#include <chrono>
 #include <execution>
 #include <iostream>
 #include <SDL3/SDL.h>
-#include "tinyexpr.h"
+#include "exprtk.hpp"
 
 constexpr int WIDTH{800};
 constexpr int HEIGHT{400};
+constexpr int MAX_DRAW_OVERFLOW{100};
 
 float scaleX{};
 float scaleY{};
 float step{};
-std::string expression{};
+std::string expressionString{};
 std::vector<SDL_FPoint> points{};
 
 void drawAxes(SDL_Renderer* renderer) {
@@ -20,16 +21,13 @@ void drawAxes(SDL_Renderer* renderer) {
     SDL_RenderLine(renderer, 0.0f, HEIGHT / 2.0f, WIDTH, HEIGHT / 2.0f);
 }
 
-float evaluateFunctionAt(te_parser& parser, const float x) {
-    parser.set_variables_and_functions({{"x", x}});
-
-    if (!parser.compile(expression)) {
-        std::cerr << "Invalid expression\n" + expression;
-        exit(EXIT_FAILURE);
-    }
-
-    const auto result = parser.evaluate();
-    return static_cast<float>(result);
+float evaluateFunctionAt(exprtk::parser<float>& parser, float x) {
+    exprtk::symbol_table<float> symbol_table;
+    symbol_table.add_variable("x", x);
+    exprtk::expression<float> expression;
+    expression.register_symbol_table(symbol_table);
+    parser.compile(expressionString, expression);
+    return expression.value();
 }
 
 void toDisplayCoords(float& x, float& y) {
@@ -38,13 +36,29 @@ void toDisplayCoords(float& x, float& y) {
 }
 
 void calculateFunction() {
-    te_parser parser;
+    exprtk::parser<float> parser;
     const int steps = static_cast<int>(WIDTH / step);
     for (int i{0}; i < steps; i++) {
         float x{-WIDTH / 2.0f + static_cast<float>(i) * step};
         float y = evaluateFunctionAt(parser, x);
         toDisplayCoords(x, y);
         points.push_back(SDL_FPoint(x, y));
+    }
+}
+
+bool isValidLine(const SDL_FPoint point1, const SDL_FPoint point2) {
+    return point1.y > -MAX_DRAW_OVERFLOW
+        && point1.y < HEIGHT + MAX_DRAW_OVERFLOW
+        && point2.y > -MAX_DRAW_OVERFLOW
+        && point2.y < HEIGHT + MAX_DRAW_OVERFLOW;
+}
+
+void drawFunction(SDL_Renderer* renderer) {
+    SDL_FPoint lastPoint = points.at(0);
+    for (const SDL_FPoint point : points) {
+        if (isValidLine(lastPoint, point))
+            SDL_RenderLine(renderer, lastPoint.x, lastPoint.y, point.x, point.y);
+        lastPoint = point;
     }
 }
 
@@ -55,7 +69,8 @@ void draw(SDL_Renderer* renderer) {
     drawAxes(renderer);
 
     SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
-    SDL_RenderLines(renderer, points.data(), static_cast<int>(points.size()));
+
+    drawFunction(renderer);
 
     SDL_RenderPresent(renderer);
 }
@@ -67,7 +82,7 @@ int main(const int argc, char* argv[]) {
         return EXIT_FAILURE;
     }
 
-    expression = argv[1];
+    expressionString = argv[1];
     scaleX = std::stof(argv[2]);
     scaleY = std::stof(argv[3]);
     step = std::stof(argv[4]);
