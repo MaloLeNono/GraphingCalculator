@@ -32,4 +32,4 @@ x scale: The scale at which the x axis will be drawn.
 
 y scale: Same as x scale but with the y axis.
 
-step: The x difference between every point calculated. The higher the step, the more jagged the function will look and vice versa.
+step: The x difference between every point calculated. The higher the step, the more jagged the function will look and vice versa. (I recommend a step of 0.1 or 0.01. Higher steps than that will look weird.)
