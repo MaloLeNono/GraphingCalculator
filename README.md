@@ -40,4 +40,8 @@ xoffset: How much the graph will be offset on the x axis.
 
 yoffset: How much the graph will be offset on the y axis.
 
+gridopacity: How opaque the gray background grid will be. Must be a whole number.
+
+axesopacity: How opaque the green and red axis will be. Must be a whole number.
+
 You can also press `ESC` to exit instead of pressing the `x` button.
