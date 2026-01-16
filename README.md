@@ -1,6 +1,6 @@
 # Graphing Calculator
 
-This is a pretty simple calculator, there are some more complex functions like `sec(x)` that haven't worked for me
+This is a pretty simple calculator.
 
 ## How to build
 
