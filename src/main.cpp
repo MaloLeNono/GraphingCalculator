@@ -11,14 +11,35 @@ constexpr int MAX_DRAW_OVERFLOW{100};
 float scaleX{};
 float scaleY{};
 float step{};
+float offsetX{};
+float offsetY{};
+int gridOpacity{50};
+int axesOpacity{75};
 std::string expressionString{};
+
 std::vector<SDL_FPoint> points{};
 
 void drawAxes(SDL_Renderer* renderer) {
-    SDL_SetRenderDrawColor(renderer, 0, 50, 0, 255);
-    SDL_RenderLine(renderer, WIDTH / 2.0f, 0.0f, WIDTH / 2.0f, HEIGHT);
-    SDL_SetRenderDrawColor(renderer, 50, 0, 0, 255);
-    SDL_RenderLine(renderer, 0.0f, HEIGHT / 2.0f, WIDTH, HEIGHT / 2.0f);
+    SDL_SetRenderDrawColor(renderer, 0, 255, 0, axesOpacity);
+    SDL_RenderLine(renderer, WIDTH / 2.0f + offsetX, 0.0f, WIDTH / 2.0f + offsetX, HEIGHT);
+    SDL_SetRenderDrawColor(renderer, 255, 0, 0, axesOpacity);
+    SDL_RenderLine(renderer, 0.0f, HEIGHT / 2.0f - offsetY, WIDTH, HEIGHT / 2.0f - offsetY);
+}
+
+void drawGrid(SDL_Renderer* renderer) {
+    SDL_SetRenderDrawColor(renderer, 255, 255, 255, gridOpacity);
+
+    const int verticalLineAmount{static_cast<int>(WIDTH / scaleX)};
+    for (int i{}; i < verticalLineAmount; i++) {
+        const float x{static_cast<float>(i) * scaleX};
+        SDL_RenderLine(renderer, x, 0.0f, x, HEIGHT);
+    }
+
+    const int horizontalLineAmount{static_cast<int>(HEIGHT / scaleY)};
+    for (int i{}; i < horizontalLineAmount; i++) {
+        const float y{static_cast<float>(i) * scaleY};
+        SDL_RenderLine(renderer, 0.0f, y, WIDTH, y);
+    }
 }
 
 float evaluateFunctionAt(exprtk::parser<float>& parser, float x) {
@@ -30,19 +51,19 @@ float evaluateFunctionAt(exprtk::parser<float>& parser, float x) {
     return expression.value();
 }
 
-void toDisplayCoords(float& x, float& y) {
-    x = x * scaleX + WIDTH / 2.0f;
-    y = HEIGHT / 2.0f - y * scaleY;
+SDL_FPoint getDisplayCoords(float x, float y) {
+    x = x * scaleX + offsetX + WIDTH / 2.0f;
+    y = HEIGHT / 2.0f - y * scaleY - offsetY;
+    return SDL_FPoint(x, y);
 }
 
 void calculateFunction() {
     exprtk::parser<float> parser;
     const int steps = static_cast<int>(WIDTH / step);
-    for (int i{0}; i < steps; i++) {
-        float x{-WIDTH / 2.0f + static_cast<float>(i) * step};
-        float y = evaluateFunctionAt(parser, x);
-        toDisplayCoords(x, y);
-        points.push_back(SDL_FPoint(x, y));
+    for (int i{}; i < steps; i++) {
+        const float x{-WIDTH / 2.0f + static_cast<float>(i) * step};
+        const float y = evaluateFunctionAt(parser, x);
+        points.emplace_back(getDisplayCoords(x, y));
     }
 }
 
@@ -54,6 +75,7 @@ bool isValidLine(const SDL_FPoint point1, const SDL_FPoint point2) {
 }
 
 void drawFunction(SDL_Renderer* renderer) {
+    SDL_SetRenderDrawColor(renderer, 255, 255, 255 ,255);
     SDL_FPoint lastPoint = points.at(0);
     for (const SDL_FPoint point : points) {
         if (isValidLine(lastPoint, point))
@@ -63,29 +85,80 @@ void drawFunction(SDL_Renderer* renderer) {
 }
 
 void draw(SDL_Renderer* renderer) {
+    SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
     SDL_RenderClear(renderer);
 
+    drawGrid(renderer);
     drawAxes(renderer);
-
-    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
-
     drawFunction(renderer);
 
     SDL_RenderPresent(renderer);
 }
 
+void logError(const std::string& error) {
+    std::cerr << error;
+    exit(EXIT_FAILURE);
+}
+
+void verifyOpacityArg(const std::string& arg, int& opacity) {
+    try {
+        opacity = std::stoi(arg);
+    }
+    catch ([[maybe_unused]] std::exception& e) {
+        logError("Enter an opacity that represents a whole number");
+    }
+
+    if (opacity < 0 || opacity > 255)
+        logError("Opacity must be a whole number between 0 and 100");
+}
+
 int main(const int argc, char* argv[]) {
-    if (argc != 5) {
+    constexpr int requiredArgumentAmount{7};
+    if (argc < requiredArgumentAmount || argc > 9) {
         std::cerr << "Incorrect Usage\n"
-                     "Usage: <expression> <x scale> <y scale> <step>";
+                     "Usage: <expression> <xscale> <yscale> <step> <xoffset> <yoffset> [gridopacity(0-255)] [axesopacity(0-255)]";
         return EXIT_FAILURE;
     }
 
     expressionString = argv[1];
-    scaleX = std::stof(argv[2]);
-    scaleY = std::stof(argv[3]);
-    step = std::stof(argv[4]);
+
+    try {
+        scaleX = std::stof(argv[2]);
+        scaleY = std::stof(argv[3]);
+        step = std::stof(argv[4]);
+    }
+    catch ([[maybe_unused]] std::exception& e) {
+        logError("Step and scale values must be numeric");
+    }
+
+    try {
+        offsetX = std::stof(argv[5]);
+        offsetY = std::stof(argv[6]);
+    }
+    catch ([[maybe_unused]] std::exception& e) {
+        logError("Offset values must be numeric");
+    }
+
+    for (int i{requiredArgumentAmount}; i < argc; i++) {
+        const std::string arg = argv[i];
+
+        switch (i) {
+            case 7:
+                verifyOpacityArg(argv[i], gridOpacity);
+                break;
+            case 8:
+                verifyOpacityArg(argv[i], axesOpacity);
+                break;
+            default:
+                break;
+        }
+    }
+
+    if (scaleX < 0 || scaleY < 0 || step < 0) {
+        std::cerr << "ERROR: Scale and step arguments cannot be negative";
+        return EXIT_FAILURE;
+    }
 
     calculateFunction();
 
