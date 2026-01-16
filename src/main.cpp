@@ -42,15 +42,6 @@ void drawGrid(SDL_Renderer* renderer) {
     }
 }
 
-float evaluateFunctionAt(exprtk::parser<float>& parser, float x) {
-    exprtk::symbol_table<float> symbol_table;
-    symbol_table.add_variable("x", x);
-    exprtk::expression<float> expression;
-    expression.register_symbol_table(symbol_table);
-    parser.compile(expressionString, expression);
-    return expression.value();
-}
-
 SDL_FPoint getDisplayCoords(float x, float y) {
     x = x * scaleX + offsetX + WIDTH / 2.0f;
     y = HEIGHT / 2.0f - y * scaleY - offsetY;
@@ -58,16 +49,26 @@ SDL_FPoint getDisplayCoords(float x, float y) {
 }
 
 void calculateFunction() {
+    points.clear();
+    points.reserve(static_cast<int>(WIDTH / step));
+
     exprtk::parser<float> parser;
+    exprtk::symbol_table<float> symbol_table;
+    float xVariable{};
+    symbol_table.add_variable("x", xVariable);
+    exprtk::expression<float> expression;
+    expression.register_symbol_table(symbol_table);
+    parser.compile(expressionString, expression);
+
     const int steps = static_cast<int>(WIDTH / step);
     for (int i{}; i < steps; i++) {
-        const float x{-WIDTH / 2.0f + static_cast<float>(i) * step};
-        const float y = evaluateFunctionAt(parser, x);
-        points.emplace_back(getDisplayCoords(x, y));
+        xVariable = -WIDTH / 2.0f + static_cast<float>(i) * step;
+        const float y = expression.value();
+        points.emplace_back(getDisplayCoords(xVariable, y));
     }
 }
 
-bool isValidLine(const SDL_FPoint point1, const SDL_FPoint point2) {
+bool isValidLine(const SDL_FPoint& point1, const SDL_FPoint& point2) {
     return point1.y > -MAX_DRAW_OVERFLOW
         && point1.y < HEIGHT + MAX_DRAW_OVERFLOW
         && point2.y > -MAX_DRAW_OVERFLOW
@@ -75,9 +76,11 @@ bool isValidLine(const SDL_FPoint point1, const SDL_FPoint point2) {
 }
 
 void drawFunction(SDL_Renderer* renderer) {
+    if (points.size() < 2) return;
+
     SDL_SetRenderDrawColor(renderer, 255, 255, 255 ,255);
     SDL_FPoint lastPoint = points.at(0);
-    for (const SDL_FPoint point : points) {
+    for (const SDL_FPoint& point : points) {
         if (isValidLine(lastPoint, point))
             SDL_RenderLine(renderer, lastPoint.x, lastPoint.y, point.x, point.y);
         lastPoint = point;
@@ -110,7 +113,7 @@ void verifyOpacityArg(const std::string& arg, int& opacity) {
     }
 
     if (opacity < 0 || opacity > 255)
-        logError("Opacity must be a whole number between 0 and 100");
+        logError("Opacity must be a whole number between 0 and 255");
 }
 
 int main(const int argc, char* argv[]) {
@@ -131,6 +134,9 @@ int main(const int argc, char* argv[]) {
     catch ([[maybe_unused]] std::exception& e) {
         logError("Step and scale values must be numeric");
     }
+
+    if (scaleX <= 0 || scaleY <= 0 || step <= 0)
+        logError("Step and scale values must be positive and bigger than 0");
 
     try {
         offsetX = std::stof(argv[5]);
@@ -169,6 +175,8 @@ int main(const int argc, char* argv[]) {
     bool running{true};
     SDL_Event event;
 
+    draw(renderer);
+
     while (running) {
         while (SDL_PollEvent(&event)) {
             if (event.type == SDL_EVENT_QUIT)
@@ -183,8 +191,6 @@ int main(const int argc, char* argv[]) {
                 }
             }
         }
-
-        draw(renderer);
 
         SDL_Delay(16);
     }
