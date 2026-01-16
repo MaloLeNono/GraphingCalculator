@@ -24,16 +24,20 @@ For this to work, you will need to have `vcpkg` installed to manage the packages
 In the same folder as your executable, open your terminal.
 The arguments for the calculator are:
 
-`<expression> <x scale> <y scale> <step>`
+`<expression> <xscale> <yscale> <step> <xoffset> <yoffset> [gridopacity(0-255)] [axesopacity(0-255)]`
 
 expression: The function you want to graph.
 
-x scale: The scale at which the x axis will be drawn.
+xscale: The scale at which the x axis will be drawn.
 
-y scale: Same as x scale but with the y axis.
+yscale: Same as x scale but with the y axis.
 
 For the scales, I don't recommend using scale 1 because the functions will look very small, especially some like `sin(x)`. This is because a scale of 1 means one graduation will be one pixel. I recommend around 20.
 
 step: The x difference between every point calculated. The higher the step, the more jagged the function will look and vice versa. (I recommend a step of 0.1 or 0.01. Higher steps than that will look weird.)
+
+xoffset: How much the graph will be offset on the x axis.
+
+yoffset: How much the graph will be offset on the y axis.
 
 You can also press `ESC` to exit instead of pressing the `x` button.
